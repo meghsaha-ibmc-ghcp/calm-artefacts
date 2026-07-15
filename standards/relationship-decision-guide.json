@@ -1,0 +1,62 @@
+{
+  "$id": "https://example.com/defaults/relationship-decision-guide.json",
+  "description": "Suggested values for company-relationship-standard.json required fields, keyed by connection-type pattern. Consulted only when a value isn't already supplied. Edit this file to change guidance - no agent or skill file needs to change.",
+  "crossFieldRules": [
+    {
+      "rule": "encrypted must be true when dataClassification is 'confidential' or 'restricted'",
+      "onViolation": "flag-and-refuse-without-explicit-override"
+    }
+  ],
+  "connectionTypes": {
+    "external-to-edge": {
+      "matchHints": ["client to waf", "client to front door", "internet-facing"],
+      "dataClassification": "public",
+      "encrypted": true
+    },
+    "edge-to-gateway": {
+      "matchHints": ["waf to api management", "front door to gateway"],
+      "dataClassification": "internal",
+      "encrypted": true
+    },
+    "gateway-to-compute": {
+      "matchHints": ["api management to app service", "gateway to function"],
+      "dataClassification": "internal",
+      "encrypted": true
+    },
+    "compute-to-database": {
+      "matchHints": ["app service to sql", "app service to database"],
+      "dataClassification": "confidential",
+      "encrypted": true
+    },
+    "compute-to-secrets": {
+      "matchHints": ["app service to key vault"],
+      "dataClassification": "restricted",
+      "encrypted": true
+    },
+    "compute-to-identity": {
+      "matchHints": ["app service to azure ad", "app service to entra"],
+      "dataClassification": "confidential",
+      "encrypted": true
+    },
+    "compute-to-messaging": {
+      "matchHints": ["app service to service bus", "app service to queue"],
+      "dataClassification": "internal",
+      "encrypted": true
+    },
+    "compute-to-storage": {
+      "matchHints": ["app service to blob", "app service to storage"],
+      "dataClassification": "confidential",
+      "encrypted": true
+    },
+    "monitoring-to-any": {
+      "matchHints": ["monitor to", "insights to"],
+      "dataClassification": "internal",
+      "encrypted": true
+    },
+    "pii-or-secret-involved": {
+      "matchHints": ["pii", "secret", "personal data"],
+      "dataClassification": "restricted",
+      "encrypted": true
+    }
+  }
+}

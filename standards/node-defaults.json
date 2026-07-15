@@ -1,0 +1,49 @@
+{
+  "$id": "https://example.com/defaults/node-defaults.json",
+  "description": "Suggested values for company-node-standard.json required fields, keyed by component category. Consulted only when a value isn't already supplied. Edit this file to change defaults - no agent or skill file needs to change.",
+  "note": "// TODO: confirm costCenter values with finance before treating as final",
+  "categories": {
+    "frontend-client": {
+      "matchHints": ["client", "frontend", "external client", "browser"],
+      "costCenter": "CC-0001",
+      "owner": "Frontend Team",
+      "environment": "production"
+    },
+    "api-gateway": {
+      "matchHints": ["api management", "gateway", "api gateway"],
+      "costCenter": "CC-0002",
+      "owner": "Platform Engineering",
+      "environment": "production"
+    },
+    "app-service-compute": {
+      "matchHints": ["app service", "function", "compute", "serverless"],
+      "costCenter": "CC-0003",
+      "owner": "Backend Team",
+      "environment": "production"
+    },
+    "database-storage": {
+      "matchHints": ["sql", "database", "blob", "storage"],
+      "costCenter": "CC-0004",
+      "owner": "Data Engineering",
+      "environment": "production"
+    },
+    "identity": {
+      "matchHints": ["azure ad", "entra", "identity", "aad"],
+      "costCenter": "CC-0005",
+      "owner": "Security Team",
+      "environment": "production"
+    },
+    "networking": {
+      "matchHints": ["vnet", "front door", "load balancer", "network"],
+      "costCenter": "CC-0006",
+      "owner": "Infrastructure Team",
+      "environment": "production"
+    },
+    "monitoring-security": {
+      "matchHints": ["key vault", "monitor", "defender", "insights"],
+      "costCenter": "CC-0007",
+      "owner": "Security Team",
+      "environment": "production"
+    }
+  }
+}
