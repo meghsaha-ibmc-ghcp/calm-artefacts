@@ -1,0 +1,40 @@
+{
+  "$schema": "https://calm.finos.org/release/1.2/meta/calm.json",
+  "$id": "https://example.com/patterns/frontend-tech-stack-pattern.json",
+  "title": "Frontend Tech Stack Pattern",
+  "description": "Enforces the approved mobile frontend technology stack (React Native / TypeScript) on the mobile client node, with minimum supported OS versions per BRD-MOB-001 ASM-05.",
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "mobile-app" },
+            "technology": {
+              "const": {
+                "framework": "React Native",
+                "language": "TypeScript",
+                "minimum-os": {
+                  "ios": "16",
+                  "android": "12"
+                },
+                "state-management": "not-mandated",
+                "secure-storage-library": "react-native-keychain"
+              }
+            }
+          },
+          "required": ["unique-id", "technology"]
+        }
+      ]
+    },
+    "relationships": {
+      "type": "array",
+      "maxItems": 0
+    }
+  },
+  "required": ["nodes"]
+}
