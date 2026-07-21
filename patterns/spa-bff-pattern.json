@@ -1,0 +1,147 @@
+{
+  "$schema": "https://calm.finos.org/release/1.2/meta/calm.json",
+  "$id": "https://example.com/patterns/spa-bff-pattern.json",
+  "title": "SPA Backend for Frontend (BFF) Pattern",
+  "description": "A Backend for Frontend pattern complementing the SPA. The BFF aggregates calls to downstream microservices, providing a tailored API surface for the SPA client and shielding it from service proliferation.",
+  "type": "object",
+  "properties": {
+    "unique-id": {
+      "anyOf": [{ "type": "string" }, { "type": "object" }]
+    },
+    "name": {
+      "anyOf": [{ "type": "string" }, { "type": "object" }]
+    },
+    "description": {
+      "anyOf": [{ "type": "string" }, { "type": "object" }]
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "spa-client" },
+            "node-type": { "const": "webclient" },
+            "name": { "const": "SPA Client" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "bff-service" },
+            "node-type": { "const": "service" },
+            "name": { "const": "BFF Service" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "user-service" },
+            "node-type": { "const": "service" },
+            "name": { "const": "User Service" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "product-service" },
+            "node-type": { "const": "service" },
+            "name": { "const": "Product Service" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "notification-service" },
+            "node-type": { "const": "service" },
+            "name": { "const": "Notification Service" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        }
+      ]
+    },
+    "relationships": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "spa-client-to-bff" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "spa-client" },
+                  "destination": { "node": "bff-service" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "bff-to-user-service" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "bff-service" },
+                  "destination": { "node": "user-service" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "bff-to-product-service" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "bff-service" },
+                  "destination": { "node": "product-service" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "bff-to-notification-service" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "bff-service" },
+                  "destination": { "node": "notification-service" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        }
+      ]
+    }
+  },
+  "required": ["nodes", "relationships"]
+}
