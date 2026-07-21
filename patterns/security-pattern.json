@@ -1,0 +1,330 @@
+{
+  "$schema": "https://calm.finos.org/release/1.2/meta/calm.json",
+  "$id": "https://example.com/patterns/security-pattern.json",
+  "title": "Balance Inquiry Security Controls Pattern",
+  "description": "Security controls companion for the mobile balance inquiry architecture. Enforces OAuth2 PKCE and scoped tokens at the Identity Provider, TLS/rate-limiting/cache-control at the API Gateway, entitlement checks, internal mTLS and audit logging on the balance service and core banking, immutable audit storage, and secure on-device token/data handling on the mobile client. Traceable to BRD-MOB-001 Section 10 (SEC-01..SEC-13).",
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "mobile-app" },
+            "controls": {
+              "const": {
+                "on-device-security": {
+                  "description": "No local persistence of balance data; secure enclave for tokens; certificate pinning. Refs SEC-04, SEC-06, BBR-04, AC-NFR-03.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/no-local-persistence",
+                      "config": {
+                        "device-cache": false,
+                        "local-storage": false,
+                        "clear-on-background": true
+                      }
+                    },
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/secure-enclave-token-storage",
+                      "config": {
+                        "ios-storage": "keychain",
+                        "android-storage": "keystore"
+                      }
+                    },
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/certificate-pinning-required",
+                      "config": { "pinning": true }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "controls"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "api-gateway" },
+            "controls": {
+              "const": {
+                "transport-security": {
+                  "description": "TLS 1.2 minimum with HSTS enforced, TLS 1.0/1.1 disabled. Refs SEC-05, SEC-07.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/tls-1-2-minimum",
+                      "config": { "min-tls-version": "1.2", "hsts": true }
+                    }
+                  ]
+                },
+                "authorization": {
+                  "description": "Scoped access token required to invoke balance retrieval. Refs SEC-03.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/scoped-token-required",
+                      "config": { "required-scope": "accounts:balance:read" }
+                    }
+                  ]
+                },
+                "rate-limiting": {
+                  "description": "Per-customer rate limit to mitigate abuse. Refs SEC-08.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/rate-limit-per-customer",
+                      "config": { "limit": "60 requests per minute per customer" }
+                    }
+                  ]
+                },
+                "response-security": {
+                  "description": "No caching of balance responses; no internal identifiers or stack traces exposed. Refs SEC-09, SEC-10.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/no-store-cache-control",
+                      "config": { "cache-control": "no-store, no-cache" }
+                    },
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/no-internal-identifiers-exposed",
+                      "config": { "mask-internal-ids": true, "expose-stack-traces": false }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "controls"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "identity-provider" },
+            "controls": {
+              "const": {
+                "authentication": {
+                  "description": "OAuth2 PKCE flow for mobile clients via the bank's IdP. Refs SEC-01.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/oauth2-pkce-required",
+                      "config": {
+                        "grant-type": "authorization_code",
+                        "pkce": true
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "controls"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "entitlement-service" },
+            "controls": {
+              "const": {
+                "authorization": {
+                  "description": "Confirms the authenticated customer's entitlement to the specific account requested before balance data is returned. Refs SEC-02, BBR-01.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/entitlement-check-required",
+                      "config": { "check": "account-level", "enforced-before": "balance-response" }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "controls"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "balance-service" },
+            "controls": {
+              "const": {
+                "transport-security": {
+                  "description": "Mutual TLS for internal service-to-service communication. Refs Sec 11.1 integration architecture.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/mtls-internal",
+                      "config": { "mode": "mutual", "min-tls-version": "1.2" }
+                    }
+                  ]
+                },
+                "audit-logging": {
+                  "description": "Every balance retrieval event is emitted for audit logging. Refs SEC-12, BBR-05.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/audit-event-required",
+                      "config": {
+                        "fields": ["customerId", "accountReference", "channel", "ipAddressHashed", "timestamp", "outcome"],
+                        "delivery": "async"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "controls"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "core-banking-platform" },
+            "controls": {
+              "const": {
+                "transport-security": {
+                  "description": "Mutual TLS for internal service-to-service communication. Refs Sec 11.1 integration architecture.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/mtls-internal",
+                      "config": { "mode": "mutual", "min-tls-version": "1.2" }
+                    }
+                  ]
+                },
+                "data-residency": {
+                  "description": "Balance data must not be processed or stored outside approved jurisdictions. Refs SEC-13, CON-02.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/data-residency-restricted",
+                      "config-url": "https://configs.example.com/security/approved-jurisdictions.yaml"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "controls"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "audit-logging-platform" },
+            "controls": {
+              "const": {
+                "audit-storage": {
+                  "description": "Immutable audit store with regulatory retention. Refs SEC-12.",
+                  "requirements": [
+                    {
+                      "requirement-url": "https://internal-policy.example.com/security/immutable-audit-store",
+                      "config": { "immutable": true, "retention": "7 years" }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "controls"]
+        }
+      ]
+    },
+    "relationships": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "mobile-app-to-api-gateway" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "mobile-app" },
+                  "destination": { "node": "api-gateway" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "api-gateway-to-identity-provider" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "api-gateway" },
+                  "destination": { "node": "identity-provider" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "api-gateway-to-entitlement-service" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "api-gateway" },
+                  "destination": { "node": "entitlement-service" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "api-gateway-to-balance-service" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "api-gateway" },
+                  "destination": { "node": "balance-service" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "balance-service-to-core-banking-platform" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "balance-service" },
+                  "destination": { "node": "core-banking-platform" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "balance-service-to-audit-logging-platform" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "balance-service" },
+                  "destination": { "node": "audit-logging-platform" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        }
+      ]
+    }
+  },
+  "required": ["nodes", "relationships"]
+}
