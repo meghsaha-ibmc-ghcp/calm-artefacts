@@ -1,0 +1,147 @@
+{
+  "$schema": "https://calm.finos.org/release/1.2/meta/calm.json",
+  "$id": "https://example.com/patterns/spa-pattern.json",
+  "title": "Single Page Application Pattern",
+  "description": "A reusable pattern for a Single Page Application (SPA) served from a CDN, communicating with backend services via an API Gateway, and authenticating users via an Identity Provider.",
+  "type": "object",
+  "properties": {
+    "unique-id": {
+      "anyOf": [{ "type": "string" }, { "type": "object" }]
+    },
+    "name": {
+      "anyOf": [{ "type": "string" }, { "type": "object" }]
+    },
+    "description": {
+      "anyOf": [{ "type": "string" }, { "type": "object" }]
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "cdn" },
+            "node-type": { "const": "network" },
+            "name": { "const": "CDN" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "spa-client" },
+            "node-type": { "const": "webclient" },
+            "name": { "const": "SPA Client" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "identity-provider" },
+            "node-type": { "const": "service" },
+            "name": { "const": "Identity Provider" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "api-gateway" },
+            "node-type": { "const": "service" },
+            "name": { "const": "API Gateway" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "backend-service" },
+            "node-type": { "const": "service" },
+            "name": { "const": "Backend Service" },
+            "description": { "type": "string" }
+          },
+          "required": ["unique-id", "node-type", "name", "description"]
+        }
+      ]
+    },
+    "relationships": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "cdn-to-spa-client" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "cdn" },
+                  "destination": { "node": "spa-client" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "spa-client-to-identity-provider" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "spa-client" },
+                  "destination": { "node": "identity-provider" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "spa-client-to-api-gateway" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "spa-client" },
+                  "destination": { "node": "api-gateway" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "unique-id": { "const": "api-gateway-to-backend-service" },
+            "description": { "type": "string" },
+            "relationship-type": {
+              "const": {
+                "connects": {
+                  "source": { "node": "api-gateway" },
+                  "destination": { "node": "backend-service" }
+                }
+              }
+            }
+          },
+          "required": ["unique-id", "relationship-type", "description"]
+        }
+      ]
+    }
+  },
+  "required": ["nodes", "relationships"]
+}
