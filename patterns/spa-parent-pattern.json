@@ -1,0 +1,11 @@
+{
+  "$schema": "https://calm.finos.org/release/1.2/meta/calm.json",
+  "$id": "https://example.com/patterns/spa-parent-pattern.json",
+  "title": "Secure Single Page Application Pattern",
+  "description": "Composes the SPA structural pattern with the SPA security controls pattern.",
+  "allOf": [
+    { "$ref": "https://example.com/patterns/spa-pattern.json" },
+    { "$ref": "https://example.com/patterns/spa-bff-pattern.json" },
+    { "$ref": "https://example.com/patterns/spa-security-pattern.json" }
+  ]
+}
