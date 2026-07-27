@@ -1,0 +1,99 @@
+{
+  "$schema": "https://calm.finos.org/release/1.2/meta/calm.json",
+  "$id": "https://raw.githubusercontent.com/finos/calm-artefacts/main/patterns/enterprise-governance.pattern.json",
+  "title": "Enterprise Tier Boundary Governance Pattern",
+  "description": "Enforces strict tier boundary rules: blocks direct DB access from UI/Public APIs and mandates API Gateway/BFF routing for Presentation-to-Domain calls.",
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "description": "List of architectural components.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "unique-id": { "type": "string" },
+          "node-type": {
+            "type": "string",
+            "enum": [
+              "web-ui",
+              "mobile-ui",
+              "public-api",
+              "bff",
+              "api-gateway",
+              "domain-service",
+              "database"
+            ],
+            "description": "Tier categorization for the component"
+          },
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "required": ["unique-id", "node-type"]
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "description": "Declared directional interactions between nodes.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "unique-id": { "type": "string" },
+          "relationship-type": { "enum": ["interacts", "connects"] },
+          "source": { "type": "string" },
+          "destination": { "type": "string" },
+          "source-node-type": { 
+            "type": "string",
+            "enum": ["web-ui", "mobile-ui", "public-api", "bff", "api-gateway", "domain-service", "database"]
+          },
+          "destination-node-type": { 
+            "type": "string",
+            "enum": ["web-ui", "mobile-ui", "public-api", "bff", "api-gateway", "domain-service", "database"]
+          }
+        },
+        "required": ["source", "destination", "source-node-type", "destination-node-type"]
+      },
+      "allOf": [
+        {
+          "comment": "Rule 1: Web/UI layer should NOT call database nodes directly.",
+          "not": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "source-node-type": { "enum": ["web-ui", "mobile-ui"] },
+                "destination-node-type": { "const": "database" }
+              },
+              "required": ["source-node-type", "destination-node-type"]
+            }
+          }
+        },
+        {
+          "comment": "Rule 2: Public-facing API should NOT access database nodes directly.",
+          "not": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "source-node-type": { "const": "public-api" },
+                "destination-node-type": { "const": "database" }
+              },
+              "required": ["source-node-type", "destination-node-type"]
+            }
+          }
+        },
+        {
+          "comment": "Rule 3: Presentation layer MUST NOT invoke domain/business services directly across boundaries (must go through API Gateway or BFF).",
+          "not": {
+            "contains": {
+              "type": "object",
+              "properties": {
+                "source-node-type": { "enum": ["web-ui", "mobile-ui"] },
+                "destination-node-type": { "const": "domain-service" }
+              },
+              "required": ["source-node-type", "destination-node-type"]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": ["nodes", "relationships"]
+}
