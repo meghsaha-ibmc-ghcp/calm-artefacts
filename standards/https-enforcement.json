@@ -1,0 +1,28 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "HTTPS Enforcement Standard",
+    "description": "Requires all service-to-service communication to use HTTPS with a specified minimum TLS version.",
+    "type": "object",
+    "properties": {
+        "protocol": {
+            "type": "string",
+            "enum": [
+                "HTTPS"
+            ],
+            "description": "Transport protocol - must be HTTPS."
+        },
+        "minimum-tls-version": {
+            "type": "string",
+            "enum": [
+                "1.2",
+                "1.3"
+            ],
+            "description": "Minimum TLS version accepted by the service."
+        }
+    },
+    "required": [
+        "protocol",
+        "minimum-tls-version"
+    ],
+    "additionalProperties": false
+}
